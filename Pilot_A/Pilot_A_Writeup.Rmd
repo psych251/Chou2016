@@ -118,33 +118,65 @@ As identified above, we are collecting an additional measure of control - the La
 
 ```{r Import Data File, echo = FALSE}
 
+#Load the data
 d <- read.csv("~/Chou2016/Pilot_A/chou2016_pilot_a.csv")
 
 ```
 
 ```{r Clean & Filter Data, echo=FALSE}
 
+#First let's remove rows one and two since they do not contain data. Then we can select only the columns of interest.
 d2 <- d[-c(1, 2), ] %>%
   select(consent:painkiller_freq)
-
-d2['manipulation'] <- paste0(d2$high_control, d2$low_control)
-d2['condition'] <- ifelse(as.character(d2$high_control)==as.character(d2$manipulation), 'high_control', 'low_control')
-d2 = d2[ , -which(names(d2) %in% c("high_control","low_control"))]
-d2 = d2[, c(ncol(d2),ncol(d2)-1,seq(1,ncol(d2)-2))]
 
 ```
 
 ```{r Tidy Data, echo=FALSE}
 
+#Reformat the data so that there is a condition (high/low) column and all text responses from the manipulation are in a single column.
+d2['manipulation'] <- paste0(d2$high_control, d2$low_control)
+d2['condition'] <- ifelse(as.character(d2$high_control)==as.character(d2$manipulation), 'high_control', 'low_control')
+d2 = d2[ , -which(names(d2) %in% c("high_control","low_control"))]
+d2 = d2[, c(ncol(d2),ncol(d2)-1,seq(1,ncol(d2)-2))]
+d2$pain_rate_1 <- as.numeric(d2$pain_rate_1)
+```
 
 
+```{r Descriptive Statistics - Pain Rating, echo=FALSE}
+
+##Pain Rating
+
+#Across All Subjects
+describe(d2$pain_rate_1)
+
+#Pain Ratings for Subjects in High Control Condition:
+describe(subset(d2$pain_rate_1,d2$condition=='high_control'))
+
+# Pain Ratings for Subjects in Low Control Condition:
+describe(subset(d2$pain_rate_1,d2$condition=='low_control'))
 
 ```
 
 
-```{r Summarized data, echo=FALSE}
+```{r Descriptive Statistics - Five Item Control, echo=FALSE}
 
- 
+##Five Item Control
+
+controls = c('control_1', 'control_2', 'control_3', 'control_4', 'control_5')
+for (control in controls){
+  d2[, control] = as.numeric(d2[, control])
+}
+d2['five_item_control'] = rowMeans(d2[, controls])
+
+#Across All Subjects
+describe(d2$five_item_control)
+
+#Control Score for Subjects in High Control Condition:
+describe(subset(d2$five_item_control, d2$condition=='high_control'))
+
+#Control Score for Subjects in Low Control Condition:
+describe(subset(d2$five_item_control, d2$condition=='low_control'))
+
 ```
 
 
@@ -152,7 +184,25 @@ d2 = d2[, c(ncol(d2),ncol(d2)-1,seq(1,ncol(d2)-2))]
 
 ```{r T-Test, echo=FALSE}
 
- 
+#Main Analysis - t test 
+t.test(subset(d2$pain_rate_1, d2$condition=='high_control')
+       , subset(d2$pain_rate_1, d2$condition=='low_control')
+       , alternative = "two.sided", var.equal = FALSE)
+
+#Does this finding remain significant after controlling for the following variables?
+
+#Make sure class is correct for each variable
+d2$condition = as.factor(d2$condition)
+d2$age = as.numeric(d2$age)
+d2$gender = as.factor(d2$gender)
+d2$employment = as.factor(d2$employment)
+d2$painkiller = as.factor(d2$painkiller)
+
+
+#Linear Model controlling for age and gender (unable to control from employment and painkiller in Pilot A because all pilot subkects were employed and took no painkillers, so only one level factor.)
+lin_mod = lm(pain_rate_1 ~ condition + age + gender, data = d2)
+summary(lin_mod)
+
 ```
 
 
