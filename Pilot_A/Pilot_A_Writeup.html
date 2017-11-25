@@ -317,21 +317,44 @@ div.tocify {
 <h2>Results</h2>
 <div id="data-preparation" class="section level3">
 <h3>Data preparation</h3>
+<p><strong>Load the data</strong></p>
+<p><strong>Descriptive Statistics - Pain Ratings</strong></p>
+<p><em>Across All Subjects</em></p>
+<pre><code>## [1] 4.285714</code></pre>
 <pre><code>##    vars n mean  sd median trimmed  mad min max range skew kurtosis   se
 ## X1    1 7 4.29 1.8      4    4.29 1.48   2   7     5 0.23    -1.69 0.68</code></pre>
+<p><em>Subjects in High Control Condition</em></p>
+<pre><code>## [1] 4.6</code></pre>
 <pre><code>##    vars n mean   sd median trimmed  mad min max range  skew kurtosis   se
 ## X1    1 5  4.6 2.07      5     4.6 2.97   2   7     5 -0.11    -2.03 0.93</code></pre>
+<p><em>Subjects in Low Control Condition</em></p>
+<pre class="r"><code># Pain Ratings for Subjects in Low Control Condition:
+print(mean(subset(d2$pain_rate_1,d2$condition=='low_control')))</code></pre>
+<pre><code>## [1] 3.5</code></pre>
+<pre class="r"><code>describe(subset(d2$pain_rate_1,d2$condition=='low_control'))</code></pre>
 <pre><code>##    vars n mean   sd median trimmed  mad min max range skew kurtosis  se
 ## X1    1 2  3.5 0.71    3.5     3.5 0.74   3   4     1    0    -2.75 0.5</code></pre>
+<p><strong>Descriptive Statistics - Five Item Control Scale Ratings</strong></p>
+<p><em>Across All Subjects</em></p>
+<pre><code>## [1] 3.142857</code></pre>
 <pre><code>##    vars n mean   sd median trimmed mad min max range skew kurtosis   se
 ## X1    1 7 3.14 0.44      3    3.14   0 2.6   4   1.4 0.78    -0.65 0.17</code></pre>
+<p><em>Subjects in High Control Condition</em></p>
+<pre><code>## [1] 3.28</code></pre>
 <pre><code>##    vars n mean   sd median trimmed mad min max range skew kurtosis  se
 ## X1    1 5 3.28 0.44      3    3.28   0   3   4     1 0.73    -1.44 0.2</code></pre>
+<p><em>Subjects in Low Control Condition</em></p>
+<pre><code>## [1] 2.8</code></pre>
 <pre><code>##    vars n mean   sd median trimmed mad min max range skew kurtosis  se
 ## X1    1 2  2.8 0.28    2.8     2.8 0.3 2.6   3   0.4    0    -2.75 0.2</code></pre>
 </div>
 <div id="confirmatory-analysis" class="section level3">
 <h3>Confirmatory analysis</h3>
+<p><em>Main Analysis</em></p>
+<pre class="r"><code>#Main Analysis - t test 
+t.test(subset(d2$pain_rate_1, d2$condition=='high_control')
+       , subset(d2$pain_rate_1, d2$condition=='low_control')
+       , alternative = &quot;two.sided&quot;, var.equal = FALSE)</code></pre>
 <pre><code>## 
 ##  Welch Two Sample t-test
 ## 
@@ -343,6 +366,20 @@ div.tocify {
 ## sample estimates:
 ## mean of x mean of y 
 ##       4.6       3.5</code></pre>
+<p><em>Linear Model controlling for age and gender</em></p>
+<pre class="r"><code>#Does this finding remain significant after controlling for the following variables?
+
+#Make sure class is correct for each variable
+d2$condition = as.factor(d2$condition)
+d2$age = as.numeric(d2$age)
+d2$gender = as.factor(d2$gender)
+d2$employment = as.factor(d2$employment)
+d2$painkiller = as.factor(d2$painkiller)
+
+
+#Linear Model controlling for age and gender (unable to control from employment and painkiller in Pilot A because all pilot subkects were employed and took no painkillers, so only one level factor.)
+lin_mod = lm(pain_rate_1 ~ condition + age + gender, data = d2)
+summary(lin_mod)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = pain_rate_1 ~ condition + age + gender, data = d2)
