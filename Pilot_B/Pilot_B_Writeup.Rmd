@@ -1,0 +1,244 @@
+---
+Title: "Replication of Chou 2016 (Study 5) - Economic Insecurity Increases Physical Pain"
+Author: "Sean Zion"
+Date: "November 23rd, 2017"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+---
+
+```{r Load Packages, echo=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(knitr)
+library(ggthemes)
+library(psych)
+```
+
+##Introduction
+
+Prevalence of economic insecurity and physical pain have both increased dramatically in recent years. A series of studies by Chou, Parmar, and Galinsky (2016) report a causal link between the two, providing further evidence for a relationship between broad social trends and physical health. This finding has important public health implications: pain has an economic cost of more than $635 billion and increased over 1000% in the past two decades. Connecting these two major social issues may critically shape public policy and should be investigated further. 
+
+Chou and colleagues expand upon their finding by showing the causal link between economic insecurity and physical pain is mediated by feelings of lack of control. The psychological construct of lack of control has been implicated in numerous psychological and physiological states. The goal of this replication is to replicate the results of study 5, which reports a causal link between their proposed mediating variable, lack of control, and their dependent variable, self-reported physical pain. While this does not replicate the main finding of the paper, the relationship between lack of control and physical pain is an important component of Chou's proposed model.
+
+##Methods
+
+###Power Analysis
+
+100 participants were recruited for Study 5. A simple t-test was used in their analysis of the data (t(98=2.04; p=0.04)), which yeilded an effect size of d=0.41. A post-hoc power analysis revealed that the study was powered at 53%. 
+
+###Planned Sample
+
+To acheive 80% power, an a priori power analysis conduced using G Power suggested a sample of 156 subjects across two groups. All subjects will be recuited via Amazon's Mechanical Turk and will be randomly assigned to either the high control or low control condition.
+
+###Materials
+
+Participants were presented with the same questions as in Study 5 of Chou et al., 2016. 
+
+
+###Procedure
+
+Participants began by reading the IRB header and were asked to agree / disagree to contiue. They were then randomized, in a 1:1 ratio, to either a high control or low control condition. In the high control condition, participants were asked to write about a time in their life when they felt in total control of a situation. They are allowed to choose the amount of time spent on this response. In the low-control condition, participants are asked to similarly describe a time in their life when they had no control over a situation. They are required to spend 1.5 minutes on this response.
+
+All participants are then asked to record the amount of physical pain they are currently experiencing, on a 0-100 slide scale. 
+
+Subjects then completed a short, five-item lack of control measure, that was an additional scale added to the author's original procedure. See **Differences from Original Study** section for more details. 
+
+Finally, participants responeded to a short demographics questionnaire in which they were asked their age, gender, employment status, and use of painkillers.
+
+**Excerpt from paper:**
+
+"Participants were asked to write about an autobiographical experience (Whitson & Galinsky, 2008). Half recalled a time when they lacked control. The other half recalled a time when they had complete control. 
+
+After the recall task, participants were asked to “choose the overall pain level that best describes how much physical pain you are experiencing RIGHT NOW.” They responded using a visual slider scale (Portenoy & Kanner, 1996), on which 0 indicated no pain and 100 indicated the worst pain ever experienced.
+
+Participants also reported their age, gender, and current employment status, and whether they were using painkillers."
+
+
+**Replication Link**
+
+https://stanforduniversity.qualtrics.com/jfe/form/SV_cOKVcCFKgzvOxxj
+
+ 
+###Analysis Plan
+
+**Analysis Steps**
+
+1) Exclusion: Any participants who responded "disagree" to the question 'consent' will be excluded from the survey. All other participants will be included. 
+
+2) Data Cleaning: Summarize the data so that each participant has a separate column for the manipulation condition (low control / high control), response to pain questionnaire, and control variables / demographics. The mean score for the five-item control questionnaire will be calculated and included as a separate row, as the response to any individual control questions is not important for this analysis.
+
+3) Analysis: 
+- Calculate descriptive statistics for the two groups. Mean and SD will be calculated for pain rating, five-item lack-of-control questionnaire, and control variables / demographics.
+
+- Conduct a t-test for mean difference in pain ratings between the two manipulation groups. 
+
+-Conduct a second t-test for mean differences in pain ratings between the two manipualtion groups controlling for age, gender, and painkiller use. 
+
+
+###Differences from Original Study
+
+**Sample differences**
+
+None: the original paper used a sample of 100 mTurk workers in 2015. It can be assumed that a similar sample would be obtained with the replication.
+
+**Setting differences**
+
+Slight: We will be paying participants 60 cents for their time. The original study paid 41 cents. Given the minor adjustment in cost, we do not beleive this will have any effect on the results.
+
+**Procedure differences**
+
+The replication was conducted exactly as outlined in Study 5 of Chou et al., with the addition of a short, five-item scale that captures respondents’ psychological sense of lacking control (Lachman & Weaver, 1998). This scale was used in study 4 of the paper, and serves as an aditional measure of control to be used in additional analyses of the overall hypothesis presented by Chou and colleagues.
+
+Two additional control variable questions were added to the end of the survey. Following the question regarding use of pain killers, participants who responded yes to this were routed to two additional questions about painkiller type and use frequency. These were added so that additonal analyses could be conducted on the subpopulation of participants who were taking painkilling drugs to see if this a self-identified clinical sample would experience the same pattern of results. 
+
+
+**Analysis plan differences**
+
+As identified above, we are collecting an additional measure of control - the Lachman & Weaver five-item scale. First, I hope to use this scale as a manipulation check - does the manipualtion result in a significant mean difference in this scale? The goal of the high/low control manipulation is to induce a sense of control or a sense of lack of control. The authors do not indicate any check to ensure this manipulation was effective in the original paper. The manipulation may - rather than altering sense of control - cause participants to reflect on experiences with different affective valences. Instances of low control may simply be more upsetting, and it is this affective component that drives difference in pain ratings. 
+
+
+##Methods Addendum (Post Data Collection)
+
+- You can comment this section out prior to final report with data collection.
+
+#### Actual Sample
+- Sample size, demographics, data exclusions based on rules spelled out in analysis plan
+
+#### Differences from pre-data collection methods plan
+- Any differences from what was described as the original plan, or “none”.
+
+
+##Results
+
+###Data preparation
+
+**Load the data**
+```{r Import Data File, echo = FALSE}
+d <- read.csv("~/Chou2016/Pilot_A/chou2016_pilot_a.csv")
+```
+
+
+```{r Clean & Filter Data, echo=FALSE}
+
+#First let's remove rows one and two since they do not contain data. Then we can select only the columns of interest.
+
+d2 <- d[-c(1, 2), ] %>%
+  select(consent:painkiller_freq)
+```
+
+
+
+```{r Tidy Data, echo=FALSE}
+
+#Reformat the data so that there is a condition (high/low) column and all text responses from the manipulation are in a single column.
+
+d2['manipulation'] <- paste0(d2$high_control, d2$low_control)
+d2['condition'] <- ifelse(as.character(d2$high_control)==as.character(d2$manipulation), 'high_control', 'low_control')
+d2 = d2[ , -which(names(d2) %in% c("high_control","low_control"))]
+d2 = d2[, c(ncol(d2),ncol(d2)-1,seq(1,ncol(d2)-2))]
+d2$pain_rate_1 <- as.numeric(d2$pain_rate_1)
+```
+
+**Descriptive Statistics - Pain Ratings**
+
+*Across All Subjects* 
+```{r Descriptive Statistics 1 - Pain Rating, echo=FALSE}
+
+print(mean(d2$pain_rate_1))
+describe(d2$pain_rate_1)
+
+```
+
+*Subjects in High Control Condition* 
+```{r Descriptive Statistics 2 - Pain Rating, echo=FALSE}
+#Pain Ratings for Subjects in High Control Condition:
+print(mean(subset(d2$pain_rate_1,d2$condition=='high_control')))
+describe(subset(d2$pain_rate_1,d2$condition=='high_control'))
+
+```
+
+*Subjects in Low Control Condition*
+```{r}
+# Pain Ratings for Subjects in Low Control Condition:
+print(mean(subset(d2$pain_rate_1,d2$condition=='low_control')))
+describe(subset(d2$pain_rate_1,d2$condition=='low_control'))
+
+```
+
+
+**Descriptive Statistics - Five Item Control Scale Ratings**
+
+*Across All Subjects* 
+```{r Descriptive Statistics 1 - Control, echo=FALSE}
+##Five Item Control
+controls = c('control_1', 'control_2', 'control_3', 'control_4', 'control_5')
+for (control in controls){
+  d2[, control] = as.numeric(d2[, control])
+}
+d2['five_item_control'] = rowMeans(d2[, controls])
+
+#Across All Subjects
+print(mean(d2$five_item_control))
+describe(d2$five_item_control)
+
+```
+
+*Subjects in High Control Condition* 
+```{r Descriptive Statistics 2 - Control, echo=FALSE}
+#Control Score for Subjects in High Control Condition:
+print(mean(subset(d2$five_item_control, d2$condition=='high_control')))
+describe(subset(d2$five_item_control, d2$condition=='high_control'))
+
+```
+
+*Subjects in Low Control Condition*
+```{r Descriptive Statistics 3 - Control, echo=FALSE}
+#Control Score for Subjects in Low Control Condition:
+print(mean(subset(d2$five_item_control, d2$condition=='low_control')))
+describe(subset(d2$five_item_control, d2$condition=='low_control'))
+
+```
+
+
+
+
+###Confirmatory analysis
+
+*Main Analysis*
+```{r T-Test}
+#Main Analysis - t test 
+t.test(subset(d2$pain_rate_1, d2$condition=='high_control')
+       , subset(d2$pain_rate_1, d2$condition=='low_control')
+       , alternative = "two.sided", var.equal = FALSE)
+```
+
+*Linear Model controlling for age and gender*
+```{r}
+#Does this finding remain significant after controlling for the following variables?
+
+#Make sure class is correct for each variable
+d2$condition = as.factor(d2$condition)
+d2$age = as.numeric(d2$age)
+d2$gender = as.factor(d2$gender)
+d2$employment = as.factor(d2$employment)
+d2$painkiller = as.factor(d2$painkiller)
+
+
+#Linear Model controlling for age and gender (unable to control from employment and painkiller in Pilot A because all pilot subkects were employed and took no painkillers, so only one level factor.)
+lin_mod = lm(pain_rate_1 ~ condition + age + gender, data = d2)
+summary(lin_mod)
+```
+
+
+###Exploratory analyses
+
+##Discussion
+
+###Summary of Replication Attempt
+
+###Commentary
+
