@@ -118,16 +118,18 @@ As identified above, we are collecting an additional measure of control - the La
 
 **Load the data**
 ```{r Import Data File, echo = FALSE}
-d <- read.csv("~/Chou2016/Pilot_A/chou2016_pilot_a.csv")
+d <- read.csv("~/Chou2016/Pilot_B/chou2016_pilot_b.csv")
 ```
 
 
 ```{r Clean & Filter Data, echo=FALSE}
 
 #First let's remove rows one and two since they do not contain data. Then we can select only the columns of interest.
+#For Pilot B, I am aso removing data from the first 8 rows of trials leaving only eight trials from mTurkers collected for Pilot B.
 
-d2 <- d[-c(1, 2), ] %>%
+d2 <- d[-c(1:12), ] %>%
   select(consent:painkiller_freq)
+
 ```
 
 
@@ -147,11 +149,10 @@ d2$pain_rate_1 <- as.numeric(d2$pain_rate_1)
 
 *Across All Subjects* 
 ```{r Descriptive Statistics 1 - Pain Rating, echo=FALSE}
-
 print(mean(d2$pain_rate_1))
 describe(d2$pain_rate_1)
-
 ```
+
 
 *Subjects in High Control Condition* 
 ```{r Descriptive Statistics 2 - Pain Rating, echo=FALSE}
@@ -203,9 +204,6 @@ describe(subset(d2$five_item_control, d2$condition=='low_control'))
 
 ```
 
-
-
-
 ###Confirmatory analysis
 
 *Main Analysis*
@@ -233,8 +231,62 @@ lin_mod = lm(pain_rate_1 ~ condition + age + gender, data = d2)
 summary(lin_mod)
 ```
 
+```{r Mean Pain Rating Across Conditions - Boxplot}
+
+#Boxplot of the mean pain rating across the two manipulation conditions
+
+ggplot(d2, aes(x = condition, y = pain_rate_1)) +
+  geom_boxplot(fill = "#4271AE", colour = "#1F3552", alpha = 0.7, outlier.colour = "#1F3552", outlier.shape = 20) +
+  scale_y_continuous(name = "Mean Pain Rating", breaks = seq(0, 25, 5), limits=c(0, 25)) +
+  scale_x_discrete(name = "Control Condition") +
+  ggtitle("Mean Pain Rating Across Control Conditions") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+
+```
 
 ###Exploratory analyses
+
+```{r Pain Rating as a Function of 5-Item Control Scale}
+
+#Pain Rating as a Function of 5-Item Control Scale
+
+ggplot(d2, aes(x=five_item_control, y=pain_rate_1))+
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  labs(title="Pain Rating as a Function of 5-Item Control Scale",
+       x="Mean 5-Item Control", y = "Pain Rating") + 
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+
+
+```{r Pain and Control ratings by condition}
+
+#Mean 5-Item Control and Pain Rating by Manipulation Condition
+
+ggplot(d2, aes(x=five_item_control, y=pain_rate_1, color=condition))+
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
+  labs(title="Mean 5-Item Control and Pain Rating by Manipulation Condition",
+       x="Mean 5-Item Control", y = "Pain Rating")
+```
+
+
+```{r, Relationship between Condition and 5-item Control}
+
+#Does the manipulation condition to which participants are randomized relate to self-reported control as measured by the 5-item control scale? 
+
+ggplot(d2, aes(x = condition, y = five_item_control)) +
+  geom_boxplot(fill = "#4271AE", colour = "#1F3552", alpha = 0.7, outlier.colour = "#1F3552", outlier.shape = 20) +
+  scale_y_continuous(name = "Mean 5-Item Control") +
+  scale_x_discrete(name = "Manipulation Condition") +
+  ggtitle("Mean 5-Item Control Across Manipulation Conditions") +
+  theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+
+
+```
+
 
 ##Discussion
 
