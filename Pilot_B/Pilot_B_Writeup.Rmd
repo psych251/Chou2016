@@ -28,11 +28,11 @@ Chou and colleagues expand upon their finding by showing the causal link between
 
 ###Power Analysis
 
-100 participants were recruited for Study 5. A simple t-test was used in their analysis of the data (t(98=2.04; p=0.04)), which yeilded an effect size of d=0.41. A post-hoc power analysis revealed that the study was powered at 53%. 
+100 participants were recruited for Study 5. A simple t-test was used in their analysis of the data (t(98=2.04; p=0.04)), which yeilded an effect size of d=0.41. A post-hoc power analysis revealed that the study was powered at 53%. To acheive 80% power, an a priori power analysis conduced using G Power suggested a sample of 156 subjects across two groups.
 
 ###Planned Sample
 
-To acheive 80% power, an a priori power analysis conduced using G Power suggested a sample of 156 subjects across two groups. All subjects will be recuited via Amazon's Mechanical Turk and will be randomly assigned to either the high control or low control condition.
+156 adult subjects will be recuited via Amazon's Mechanical Turk and will be randomly assigned to either the high control or low control condition. mTurk workers will be recruited from the United States with a hit rate >90%. Any participants who does not provide consent (responds "disagree" to the question 'consent') will be excluded from the survey. All other participants will be included. 
 
 ###Materials
 
@@ -41,7 +41,7 @@ Participants were presented with the same questions as in Study 5 of Chou et al.
 
 ###Procedure
 
-Participants began by reading the IRB header and were asked to agree / disagree to contiue. They were then randomized, in a 1:1 ratio, to either a high control or low control condition. In the high control condition, participants were asked to write about a time in their life when they felt in total control of a situation. They are allowed to choose the amount of time spent on this response. In the low-control condition, participants are asked to similarly describe a time in their life when they had no control over a situation. They are required to spend 1.5 minutes on this response.
+Participants began by reading the IRB header and were asked to agree / disagree to contiue. They were then randomized, in a 1:1 ratio, to either a high control or low control condition. In the high control condition, participants were asked to write about a time in their life when they felt in total control of a situation. They are allowed to choose the amount of time spent on this response. In the low-control condition, participants are asked to similarly describe a time in their life when they had no control over a situation. They are required to spend 1.5 minutes on this response before the page automatically advances. The purpose of this automatic advancement after 1.5 minutes is to reinforce the effect of the lack of control manipulation.
 
 All participants are then asked to record the amount of physical pain they are currently experiencing, on a 0-100 slide scale. 
 
@@ -67,16 +67,15 @@ https://stanforduniversity.qualtrics.com/jfe/form/SV_cOKVcCFKgzvOxxj
 
 **Analysis Steps**
 
-1) Exclusion: Any participants who responded "disagree" to the question 'consent' will be excluded from the survey. All other participants will be included. 
 
-2) Data Cleaning: Summarize the data so that each participant has a separate column for the manipulation condition (low control / high control), response to pain questionnaire, and control variables / demographics. The mean score for the five-item control questionnaire will be calculated and included as a separate row, as the response to any individual control questions is not important for this analysis.
+1) Data Cleaning: Summarize the data so that each participant has a separate column for the manipulation condition (low control / high control), response to pain questionnaire, and control variables / demographics. The mean score for the five-item lack of control questionnaire will be calculated for each participant as the average of the five individual responses.
 
-3) Analysis: 
+2) Analysis: 
 - Calculate descriptive statistics for the two groups. Mean and SD will be calculated for pain rating, five-item lack-of-control questionnaire, and control variables / demographics.
 
 - Conduct a t-test for mean difference in pain ratings between the two manipulation groups. 
 
--Conduct a second t-test for mean differences in pain ratings between the two manipualtion groups controlling for age, gender, and painkiller use. 
+-Conduct a regression model in which in pain ratings between the two manipualtion groups controlling for age, gender, and painkiller use. 
 
 
 ###Differences from Original Study
@@ -98,7 +97,7 @@ Two additional control variable questions were added to the end of the survey. F
 
 **Analysis plan differences**
 
-As identified above, we are collecting an additional measure of control - the Lachman & Weaver five-item scale. First, I hope to use this scale as a manipulation check - does the manipualtion result in a significant mean difference in this scale? The goal of the high/low control manipulation is to induce a sense of control or a sense of lack of control. The authors do not indicate any check to ensure this manipulation was effective in the original paper. The manipulation may - rather than altering sense of control - cause participants to reflect on experiences with different affective valences. Instances of low control may simply be more upsetting, and it is this affective component that drives difference in pain ratings. 
+As identified above, we are collecting an additional measure of control - the Lachman & Weaver five-item control scale. First, I hope to use this scale as a manipulation check to see if the manipualtion result in a significant mean difference in this scale. The goal of the high/low control manipulation is to induce a sense of control or a sense of lack of control. The authors do not indicate any check to ensure this manipulation was effective in the original paper. The manipulation may - rather than altering sense of control - cause participants to reflect on experiences with different affective valences. Instances of low control may simply be more upsetting, and it is this affective component that drives difference in pain ratings. 
 
 
 ##Methods Addendum (Post Data Collection)
@@ -174,7 +173,7 @@ describe(subset(d2$pain_rate_1,d2$condition=='low_control'))
 **Descriptive Statistics - Five Item Control Scale Ratings**
 
 *Across All Subjects* 
-```{r Descriptive Statistics 1 - Control, echo=FALSE}
+```{r Descriptive Statistics 1 - Control}
 ##Five Item Control
 controls = c('control_1', 'control_2', 'control_3', 'control_4', 'control_5')
 for (control in controls){
@@ -206,7 +205,7 @@ describe(subset(d2$five_item_control, d2$condition=='low_control'))
 
 ###Confirmatory analysis
 
-*Main Analysis*
+*Primary Analysis*
 ```{r T-Test}
 #Main Analysis - t test 
 t.test(subset(d2$pain_rate_1, d2$condition=='high_control')
@@ -215,9 +214,10 @@ t.test(subset(d2$pain_rate_1, d2$condition=='high_control')
 ```
 
 *Linear Model controlling for age and gender*
-```{r}
-#Does this finding remain significant after controlling for the following variables?
 
+> To determine if this finding remains significant after controlling for potentially mediating variable, a linear model has been constructed. In addition to the condition to which each subject has been assigned, this model adds age, gender, employment status, and painkiller use to the set of variables predicting pain rating.
+
+```{r}
 #Make sure class is correct for each variable
 d2$condition = as.factor(d2$condition)
 d2$age = as.numeric(d2$age)
@@ -231,17 +231,15 @@ lin_mod = lm(pain_rate_1 ~ condition + age + gender, data = d2)
 summary(lin_mod)
 ```
 
+> Next, we construct a boxplot of pain ratings across the two manipulation conditions (low control & high control).
+
 ```{r Mean Pain Rating Across Conditions - Boxplot}
-
-#Boxplot of the mean pain rating across the two manipulation conditions
-
 ggplot(d2, aes(x = condition, y = pain_rate_1)) +
   geom_boxplot(fill = "#4271AE", colour = "#1F3552", alpha = 0.7, outlier.colour = "#1F3552", outlier.shape = 20) +
   scale_y_continuous(name = "Mean Pain Rating", breaks = seq(0, 25, 5), limits=c(0, 25)) +
   scale_x_discrete(name = "Control Condition") +
   ggtitle("Mean Pain Rating Across Control Conditions") +
   theme_bw() + theme(plot.title = element_text(hjust = 0.5))
-
 ```
 
 ###Exploratory analyses
