@@ -67,7 +67,6 @@ https://stanforduniversity.qualtrics.com/jfe/form/SV_cOKVcCFKgzvOxxj
 
 **Analysis Steps**
 
-
 1) Data Cleaning: Summarize the data so that each participant has a separate column for the manipulation condition (low control / high control), response to pain questionnaire, and control variables / demographics. The mean score for the five-item lack of control questionnaire will be calculated for each participant as the average of the five individual responses.
 
 2) Analysis: 
@@ -117,32 +116,26 @@ As identified above, we are collecting an additional measure of control - the La
 
 **Load the data**
 ```{r Import Data File, echo = FALSE}
-d <- read.csv()
+d <- read.csv("~/Chou2016/Final/chou2016_final.csv")
 ```
 
 
 ```{r Clean & Filter Data, echo=FALSE}
-
-#First let's remove rows one and two since they do not contain data. Then we can select only the columns of interest.
-#For Pilot B, I am aso removing data from the first 8 rows of trials leaving only eight trials from mTurkers collected for Pilot B.
-
-d2 <- d[-c(1:12), ] %>%
+d2 <- d[-c(1:2), ] %>%
   select(consent:painkiller_freq)
-
 ```
 
-
+> First let's remove rows one and two since they do not contain data. Then we can select only the columns of interest.
 
 ```{r Tidy Data, echo=FALSE}
-
-#Reformat the data so that there is a condition (high/low) column and all text responses from the manipulation are in a single column.
-
 d2['manipulation'] <- paste0(d2$high_control, d2$low_control)
 d2['condition'] <- ifelse(as.character(d2$high_control)==as.character(d2$manipulation), 'high_control', 'low_control')
 d2 = d2[ , -which(names(d2) %in% c("high_control","low_control"))]
 d2 = d2[, c(ncol(d2),ncol(d2)-1,seq(1,ncol(d2)-2))]
 d2$pain_rate_1 <- as.numeric(d2$pain_rate_1)
 ```
+
+> To view the data in a format that is easier to understand, we have first organized in 'Tidy Data' format. Next, a column was created to indicate the manipulation condition to which the participant was randomized (high_control / low_control).
 
 **Descriptive Statistics - Pain Ratings**
 
@@ -152,23 +145,25 @@ print(mean(d2$pain_rate_1))
 describe(d2$pain_rate_1)
 ```
 
+> The mean rating of current pain across all 158 subjects was 18.96 (SD=16.82) on a 100 point slide scale.
 
 *Subjects in High Control Condition* 
 ```{r Descriptive Statistics 2 - Pain Rating, echo=FALSE}
 #Pain Ratings for Subjects in High Control Condition:
 print(mean(subset(d2$pain_rate_1,d2$condition=='high_control')))
 describe(subset(d2$pain_rate_1,d2$condition=='high_control'))
-
 ```
+
+> The mean pain rating of current pain for the 86 subjects in the high control condition was 19.65 (SD=15.75).
 
 *Subjects in Low Control Condition*
 ```{r}
 # Pain Ratings for Subjects in Low Control Condition:
 print(mean(subset(d2$pain_rate_1,d2$condition=='low_control')))
 describe(subset(d2$pain_rate_1,d2$condition=='low_control'))
-
 ```
 
+> The mean pain rating of current pain for the 72 subjects in the low control condition was 18.14 (SD=18.09).
 
 **Descriptive Statistics - Five Item Control Scale Ratings**
 
@@ -177,31 +172,34 @@ describe(subset(d2$pain_rate_1,d2$condition=='low_control'))
 ##Five Item Control
 controls = c('control_1', 'control_2', 'control_3', 'control_4', 'control_5')
 for (control in controls){
-  d2[, control] = as.numeric(d2[, control])
+  d2[, control] = as.numeric(as.character(d2[, control]))
 }
 d2['five_item_control'] = rowMeans(d2[, controls])
 
 #Across All Subjects
 print(mean(d2$five_item_control))
 describe(d2$five_item_control)
-
 ```
+
+> The mean score on the five-item lack of control scale for all 158 subjects was 3.71 (SD=0.89).
 
 *Subjects in High Control Condition* 
 ```{r Descriptive Statistics 2 - Control, echo=FALSE}
 #Control Score for Subjects in High Control Condition:
 print(mean(subset(d2$five_item_control, d2$condition=='high_control')))
 describe(subset(d2$five_item_control, d2$condition=='high_control'))
-
 ```
+
+> The mean score on the five-item lack of control scale for all the 86 subjects in the high control condition was 3.70 (SD=0.88).
 
 *Subjects in Low Control Condition*
 ```{r Descriptive Statistics 3 - Control, echo=FALSE}
 #Control Score for Subjects in Low Control Condition:
 print(mean(subset(d2$five_item_control, d2$condition=='low_control')))
 describe(subset(d2$five_item_control, d2$condition=='low_control'))
-
 ```
+
+> The mean score on the five-item lack of control scale for all the 86 subjects in the high control condition was 3.73 (SD=0.90).
 
 ###Confirmatory analysis
 
@@ -213,12 +211,18 @@ t.test(subset(d2$pain_rate_1, d2$condition=='high_control')
        , alternative = "two.sided", var.equal = FALSE)
 ```
 
+> A Welch Two Sample t-test of the mean pain rating between the two manipulation conditions returned a t=0.55; df=141.97; p=0.58; 95% CI of the mean difference between conditions was -3.87 - 6.90.
+
 *Linear Model controlling for age and gender*
 
-> To determine if this finding remains significant after controlling for potentially mediating variable, a linear model has been constructed. In addition to the condition to which each subject has been assigned, this model adds age, gender, employment status, and painkiller use to the set of variables predicting pain rating.
+> To determine the influence of potentially mediating variables, a linear model has been constructed. In addition to the condition to which each subject has been assigned, this model adds age, gender, employment status, and painkiller use to the set of variables predicting pain rating.
 
 ```{r}
 #Make sure class is correct for each variable
+d2$age[d2$age==""] <- NA
+d2$gender[d2$gender==""] <- NA
+d2$employment[d2$employment==""] <- NA
+d2$painkiller[d2$painkiller==""] <- NA
 d2$condition = as.factor(d2$condition)
 d2$age = as.numeric(d2$age)
 d2$gender = as.factor(d2$gender)
@@ -226,29 +230,52 @@ d2$employment = as.factor(d2$employment)
 d2$painkiller = as.factor(d2$painkiller)
 
 
-#Linear Model controlling for age and gender (unable to control from employment and painkiller in Pilot A because all pilot subkects were employed and took no painkillers, so only one level factor.)
-lin_mod = lm(pain_rate_1 ~ condition + age + gender, data = d2)
+
+
+lin_mod = lm(pain_rate_1 ~ condition + age + gender + employment + painkiller, data = d2)
 summary(lin_mod)
 ```
 
-> Next, we construct a boxplot of pain ratings across the two manipulation conditions (low control & high control).
+> A linear model controlling for age, gender, employment status, and painkiller use was constructed. Painkiller use was the only factor that was significantly positively related to pain rating (b=10.76; SE=3.38; t-value=3.18; p<0.01). As with the t-test above, the condition to which the subject was assigned (high control / low control) was not a significant variable in the model.
+
+
+> Next, to visualize the data, we have constructed a boxplot of pain ratings across the two manipulation conditions (low control & high control).
 
 ```{r Mean Pain Rating Across Conditions - Boxplot}
 ggplot(d2, aes(x = condition, y = pain_rate_1)) +
   geom_boxplot(fill = "#4271AE", colour = "#1F3552", alpha = 0.7, outlier.colour = "#1F3552", outlier.shape = 20) +
-  scale_y_continuous(name = "Mean Pain Rating", breaks = seq(0, 25, 5), limits=c(0, 25)) +
+  scale_y_continuous(name = "Mean Pain Rating", breaks = seq(0, 75, 15), limits=c(0, 75)) +
   scale_x_discrete(name = "Control Condition") +
   ggtitle("Mean Pain Rating Across Control Conditions") +
+  stat_summary(fun.y=mean, colour='red', geom='point') +
   theme_bw() + theme(plot.title = element_text(hjust = 0.5))
 ```
 
+> A boxplot of pain ratings across the two control conditions is presented. Pain ratings were assessed on a 0-100 scale, however, for purposes of visualization, a 0-75 point scale is shown. The mean for each group is marked in red for each group on the boxes.
+
 ###Exploratory analyses
+
+
+```{r}
+d3 <- data.frame(filter(d2, painkiller==2))
+
+print(mean(subset(d3$pain_rate_1,d3$condition=='high_control')))
+describe(subset(d3$pain_rate_1,d3$condition=='high_control'))
+
+print(mean(subset(d3$pain_rate_1,d3$condition=='low_control')))
+describe(subset(d3$pain_rate_1,d3$condition=='low_control'))
+
+t.test(subset(d3$pain_rate_1, d3$condition=='high_control')
+       , subset(d3$pain_rate_1, d3$condition=='low_control')
+       , alternative = "two.sided", var.equal = FALSE)
+
+```
+
 
 ```{r Pain Rating as a Function of 5-Item Control Scale}
 
 #Pain Rating as a Function of 5-Item Control Scale
-
-ggplot(d2, aes(x=five_item_control, y=pain_rate_1))+
+ggplot(d2, aes(x=five_item_control, y=pain_rate_1, color=condition))+
   geom_point() +
   geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
   labs(title="Pain Rating as a Function of 5-Item Control Scale",
@@ -259,31 +286,7 @@ ggplot(d2, aes(x=five_item_control, y=pain_rate_1))+
 
 
 
-```{r Pain and Control ratings by condition}
 
-#Mean 5-Item Control and Pain Rating by Manipulation Condition
-
-ggplot(d2, aes(x=five_item_control, y=pain_rate_1, color=condition))+
-  geom_point() +
-  geom_smooth(method=lm, se=FALSE, fullrange=TRUE) +
-  labs(title="Mean 5-Item Control and Pain Rating by Manipulation Condition",
-       x="Mean 5-Item Control", y = "Pain Rating")
-```
-
-
-```{r, Relationship between Condition and 5-item Control}
-
-#Does the manipulation condition to which participants are randomized relate to self-reported control as measured by the 5-item control scale? 
-
-ggplot(d2, aes(x = condition, y = five_item_control)) +
-  geom_boxplot(fill = "#4271AE", colour = "#1F3552", alpha = 0.7, outlier.colour = "#1F3552", outlier.shape = 20) +
-  scale_y_continuous(name = "Mean 5-Item Control") +
-  scale_x_discrete(name = "Manipulation Condition") +
-  ggtitle("Mean 5-Item Control Across Manipulation Conditions") +
-  theme_bw() + theme(plot.title = element_text(hjust = 0.5))
-
-
-```
 
 
 ##Discussion
