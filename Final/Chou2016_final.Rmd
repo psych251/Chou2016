@@ -1,7 +1,7 @@
 ---
 Title: "Replication of Chou 2016 (Study 5) - Economic Insecurity Increases Physical Pain"
 Author: "Sean Zion"
-Date: "December 11th, 2017"
+Date: "December 13th, 2017"
 output:
   html_document:
     toc: yes
@@ -10,13 +10,14 @@ output:
       collapsed: false
 ---
 
-```{r Load Packages, echo=FALSE, warnings=FALSE}
+```{r Load Packages, echo=FALSE, warnings=FALSE, message=FALSE}
 library(ggplot2)
 library(tidyverse)
 library(knitr)
 library(ggthemes)
 library(psych)
 library(lsr)
+library(kableExtra)
 ```
 
 ##Introduction
@@ -143,21 +144,21 @@ d2$pain_rate_1 <- as.numeric(as.character(d2$pain_rate_1))
 *Age*
 ```{r Descriptive Statistics 4 - Age, echo=FALSE}
 d2$age = as.numeric(as.character(d2$age))
-describe(d2$age, na.rm=TRUE)
-avg_age_high <- mean(subset(d2$age, d2$condition=='high_control'), na.rm=TRUE)
+age_tab <- describe(d2$age, na.rm=TRUE)
+mean(subset(d2$age, d2$condition=='high_control'), na.rm=TRUE)
 avg_age_low <- mean(subset(d2$age, d2$condition=='low_control'), na.rm=TRUE)
 ```
 
-> The mean age of the sample was 33.95 years (SD=9.67 years).
+The mean age of the sample was 33.95 years (SD=9.67 years).
 
-*Gender*
+_Gender_
 ```{r Descriptive Statistics 5 - Gender, echo=FALSE}
 d2 %>% 
     group_by(gender) %>% 
     summarise(percent = 100 * n() / nrow(d2))
 ```
 
-> The sample was 57.59% male, 41.14% female, and 0.63% other. One subject did not respond to this question.
+The sample was 57.59% male, 41.14% female, and 0.63% other. One subject did not respond to this question.
 
 *Employment*
 ```{r Descriptive Statistics 6 - Employment, echo=FALSE}
@@ -166,7 +167,7 @@ d2 %>%
     summarise(percent = 100 * n() / nrow(d2))
 ```
 
-> 87.97% of the sample was currently working. 63.29% of the sample were paid employees employment and 24.7% were self employed. 11.39% of the sample was not working.
+87.97% of the sample was currently working. 63.29% of the sample were paid employees employment and 24.7% were self employed. 11.39% of the sample was not working.
 
 *Current Painkiller Use*
 ```{r Descriptive Statistics 7 - Painkiller, echo=FALSE}
@@ -175,7 +176,7 @@ d2 %>%
     summarise(percent = 100 * n() / nrow(d2))
 ```
 
-> 20.3% of the sample endorsed current use of a painkiller.
+20.3% of the sample endorsed current use of a painkiller.
 
 **Descriptive Statistics - Pain Ratings**
 
@@ -185,7 +186,7 @@ print(mean(d2$pain_rate_1))
 describe(d2$pain_rate_1)
 ```
 
-> The mean rating of current pain across all 158 subjects was 21.01 (SD=24.12) on a 100 point slide scale.
+The mean rating of current pain across all 158 subjects was 21.01 (SD=24.12) on a 100 point slide scale.
 
 *Descriptive Statistics for Subjects in the High Control Condition* 
 ```{r Descriptive Statistics 2 - Pain Rating, echo=FALSE}
@@ -195,7 +196,7 @@ print(avg_pain_high)
 describe(subset(d2$pain_rate_1,d2$condition=='high_control'))
 ```
 
-> The mean pain rating of current pain for the 86 subjects in the high control condition was 23.10 (SD=23.88).
+The mean pain rating of current pain for the 86 subjects in the high control condition was 23.10 (SD=23.88).
 
 *Descriptive Statistics for Subjects in the Low Control Condition*
 ```{r}
@@ -205,7 +206,7 @@ print(avg_pain_low)
 describe(subset(d2$pain_rate_1,d2$condition=='low_control'))
 ```
 
-> The mean pain rating of current pain for the 72 subjects in the low control condition was 18.51 (SD=24.33).
+The mean pain rating of current pain for the 72 subjects in the low control condition was 18.51 (SD=24.33).
 
 **Descriptive Statistics - Five Item Control Scale Ratings**
 
@@ -223,7 +224,7 @@ print(mean(d2$five_item_control))
 describe(d2$five_item_control)
 ```
 
-> The mean score on the five-item lack of control scale for all 158 subjects was 3.71 (SD=0.89).
+The mean score on the five-item lack of control scale for all 158 subjects was 3.71 (SD=0.89).
 
 *Subjects in High Control Condition* 
 ```{r Descriptive Statistics 2 - Control, echo=FALSE}
@@ -233,7 +234,7 @@ print(avg_control_high)
 describe(subset(d2$five_item_control, d2$condition=='high_control'))
 ```
 
-> The mean score on the five-item lack of control scale for the 86 subjects in the high control condition was 3.70 (SD=0.88).
+The mean score on the five-item lack of control scale for the 86 subjects in the high control condition was 3.70 (SD=0.88).
 
 *Subjects in Low Control Condition*
 ```{r Descriptive Statistics 3 - Control, echo=FALSE}
@@ -243,12 +244,12 @@ print(avg_control_low)
 describe(subset(d2$five_item_control, d2$condition=='low_control'))
 ```
 
-> The mean score on the five-item lack of control scale for the 72 subjects in the high control condition was 3.73 (SD=0.90).
+The mean score on the five-item lack of control scale for the 72 subjects in the high control condition was 3.73 (SD=0.90).
 
 ###Confirmatory analysis
 
 *Primary Analysis*
-```{r T-Test, echo=FALSE}
+```{r T-Test, echo=FALSE, message=FALSE}
 t.test(subset(d2$pain_rate_1, d2$condition=='high_control')
        , subset(d2$pain_rate_1, d2$condition=='low_control')
        , alternative = "two.sided", var.equal = TRUE)
@@ -258,11 +259,11 @@ y <- subset(d2$pain_rate_1, d2$condition=='low_control')
 cohensD(x,y)
 ```
 
-> A Two Sample t-test (with the assumption of equal variance) of the mean pain rating between the two manipulation conditions returned a t=0.55; df=141.97; p=0.58; 95% CI of the mean difference between conditions was -3.87 - 6.90. The effect size, measured by Cohen's d, was 0.191.
+A Two Sample t-test (with the assumption of equal variance) of the mean pain rating between the two manipulation conditions returned a t=0.55; df=141.97; p=0.58; 95% CI of the mean difference between conditions was -3.87 - 6.90. The effect size, measured by Cohen's d, was 0.191.
 
 *Linear Model controlling for age and gender*
 
-> To determine the influence of potentially mediating variables, a linear model has been constructed. In addition to the condition to which each subject has been assigned, this model adds age, gender, employment status, and painkiller use to the set of variables predicting pain rating.
+To determine the influence of potentially mediating variables, a linear model has been constructed. In addition to the condition to which each subject has been assigned, this model adds age, gender, employment status, and painkiller use to the set of variables predicting pain rating.
 
 ```{r, control variables, echo=FALSE, warning=FALSE}
 #Make sure class is correct for each variable
@@ -275,6 +276,8 @@ d2$age = as.numeric(as.character(d2$age))
 d2$gender = as.factor(d2$gender)
 d2$employment = as.factor(d2$employment)
 d2$painkiller = as.factor(d2$painkiller)
+
+d2$gender[d2$gender==3] <- NA
 
 #Create a new variable for employed or unemployed
 d2$employment_yn[d2$employment == 1] <- 1
@@ -293,12 +296,16 @@ library(stargazer, quietly = TRUE)
 lin_mod_a = lm(pain_rate_1 ~ condition, data = d2)
 lin_mod_b = lm(pain_rate_1 ~ condition + age + gender + employment_yn + painkiller, data = d2)
 
-stargazer(lin_mod_b, type = 'html')
+stargazer(lin_mod_a, lin_mod_b, type="html",
+ dep.var.labels=c("Pain Rating"),
+ covariate.labels=c("Condition", "Age", "Gender", "Employment Status", "Painkiller Use"), out="models.htm")
 ```
 
-> A linear model controlling for age, gender, employment status, and painkiller use was constructed. Painkiller use was the only factor that was significantly positively related to pain rating (b=10.76; SE=3.38; t-value=3.18; p<0.01). As with the t-test above, the condition to which the subject was assigned (high control / low control) was not a significant variable in the model.
 
-> Next, to visualize the data, we have constructed a boxplot of pain ratings across the two manipulation conditions (low control & high control).
+A linear model controlling for age, gender, employment status, and painkiller use was constructed. Painkiller use was the only factor that was significantly positively related to pain rating (b=10.76; SE=3.38; t-value=3.18; p<0.01). As with the t-test above, the condition to which the subject was assigned (high control / low control) was not a significant variable in the model.
+
+Next, to visualize the data, we have constructed a boxplot of pain ratings across the two manipulation conditions (low control & high control).
+
 
 ```{r Mean Pain Rating Across Conditions - Boxplot, warning=FALSE}
 ggplot(d2, aes(x = condition, y = pain_rate_1)) +
@@ -310,11 +317,11 @@ ggplot(d2, aes(x = condition, y = pain_rate_1)) +
   theme_bw() + theme(plot.title = element_text(hjust = 0.5))
 ```
 
-> A boxplot of pain ratings across the two control conditions is presented. Pain ratings were assessed on a 0-100 scale, however, for purposes of visualization, a 0-75 point scale is shown. The mean for each group is marked in red for each group on the boxes.
+A boxplot of pain ratings across the two control conditions is presented. Pain ratings were assessed on a 0-100 scale, however, for purposes of visualization, a 0-80 point scale is shown. The mean for each group is marked in red on the boxes.
 
 ###Exploratory analyses
 
-> We included an measure of lack of control - the five-item lack of control scale (Lachman & Weaver, 1998) in addition to the measures used by Chou and colleagues. It is of interest to see whether or not assignment to the high control or low control manipulation condition affected subsequent scores on this lack of control scale. As reported in the descriptive statistics above, The mean score on the five-item lack of control scale for all 158 subjects was 3.71 (SD=0.89). The mean score for the 86 subjects in the high control condition was 3.70 (SD=0.88). The mean score for the 72 subjects in the high control condition was 3.73 (SD=0.90).
+We included an measure of lack of control - the five-item lack of control scale (Lachman & Weaver, 1998) in addition to the measures used by Chou and colleagues. It is of interest to see whether or not assignment to the high control or low control manipulation condition affected subsequent scores on this lack of control scale. As reported in the descriptive statistics above, The mean score on the five-item lack of control scale for all 158 subjects was 3.71 (SD=0.89). The mean score for the 86 subjects in the high control condition was 3.70 (SD=0.88). The mean score for the 72 subjects in the high control condition was 3.73 (SD=0.90).
 
 ```{r, t-test, warning=FALSE}
 t.test(subset(d2$five_item_control, d2$condition=='high_control')
@@ -322,9 +329,9 @@ t.test(subset(d2$five_item_control, d2$condition=='high_control')
        , alternative = "two.sided", var.equal = TRUE)
 ```
 
-> A Two Sample t-test (assumed equal variance) for difference in means between groups found no significant differences and yeilded a t-value of -0.143 and a p-value of 0.886 on 150.29 degrees of freedom. The 95% confidence interval around the mean difference is -0.31 - 0.26. 
+A Two Sample t-test (assumed equal variance) for difference in means between groups found no significant differences and yeilded a t-value of -0.143 and a p-value of 0.886 on 150.29 degrees of freedom. The 95% confidence interval around the mean difference is -0.31 - 0.26. 
 
-> Next, we want to understand the relationship between the outcome on this measure of control and pain ratings. We construct a linear model to see if the score on the five item control scale is predicitive of pain ratings.
+Next, we want to understand the relationship between the outcome on this measure of control and pain ratings. We construct a linear model to see if the score on the five item control scale is predicitive of pain ratings.
 
 
 ```{r linear model 2, warning=FALSE, echo=FALSE}
@@ -337,10 +344,13 @@ library(stargazer, quietly = TRUE)
 
 lin_mod2 = lm(pain_rate_1 ~ five_item_control, data = d2)
 
-stargazer(lin_mod2, type = 'html')
+
+stargazer(lin_mod2, type="html",
+ dep.var.labels=c("Pain Rating"),
+ covariate.labels=c("Condition", "Five-Item Control Scale", out="models.htm"))
 ```
 
-> Mean score on the five item control scale is a significant negative predictor of pain ratings. Less perceived control is significantly related to higher pain scores. We can represent this relationship visually below, in a scatter plot depicting the relationship between pain and perceived control. To illustrate the null effect of condition, the condition to which each subject was assigned is depicted.
+Mean score on the five item control scale is a significant negative predictor of pain ratings. Less perceived control is significantly related to higher pain scores. We can represent this relationship visually below, in a scatter plot depicting the relationship between pain and perceived control. To illustrate the null effect of condition, the condition to which each subject was assigned is depicted.
 
 
 ```{r Pain Rating as a Function of 5-Item Control Scale}
